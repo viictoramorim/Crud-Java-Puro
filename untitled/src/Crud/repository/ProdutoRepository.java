@@ -6,9 +6,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static javax.swing.text.html.HTML.Tag.SELECT;
-
-public class produtoRepository {
+public class ProdutoRepository {
 
     //Private -> Só a essa classe acessa ela.
     //Static -> É quando ele pertence a essa classe não é um obj.
@@ -17,7 +15,7 @@ public class produtoRepository {
     private static final String USER = "sa";
     private static final String PASSWORD = "";
 
-    public produtoRepository(){
+    public ProdutoRepository(){
         criarTabela();
     }
 
@@ -66,6 +64,50 @@ public class produtoRepository {
             System.out.println("Erro ao listar: " + e.getMessage());
         }
         return lista;
+    }
+
+    public Produto buscarPorId(int id){
+        String sql = "SELECT * FROM produto WHERE id = ?";
+        try (Connection conn = connectar(); PreparedStatement ps = conn.prepareStatement(sql)){
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return new Produto(
+                        rs.getInt("id"),
+                        rs.getString("nome"),
+                        rs.getDouble("preco"),
+                        rs.getInt("estoque")
+                );
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao buscar: " + e.getMessage());
+        }
+        return null;
+    }
+
+    public boolean atualizar(Produto produto) {
+        String sql = "UPDATE produto SET nome = ?, preco = ?, estoque = ? WHERE id = ?";
+        try (Connection conn = connectar(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, produto.getNome());
+            ps.setDouble(2, produto.getPreco());
+            ps.setInt(3, produto.getEstoque());
+            ps.setInt(4, produto.getId());
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println("Erro ao atualizar: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public boolean deletar(int id) {
+        String sql = "DELETE FROM produto WHERE id = ?";
+        try (Connection conn = connectar(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println("Erro ao deletar: " + e.getMessage());
+        }
+        return false;
     }
 
     //Private -> Só essa classe acessa ela.
