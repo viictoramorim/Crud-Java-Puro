@@ -11,12 +11,21 @@ public class ProdutoRepository {
     //Private -> Só a essa classe acessa ela.
     //Static -> É quando ele pertence a essa classe não é um obj.
     //Final -> É por que é uma constante e por isso em maiusculo (URL,USER, PASSWORD)
-    private static final String URL = "jdbc:h2:mem:loja;DB_CLOSE_DELAY=-1";
+    private static final String URL = "jdbc:h2:./loja";
     private static final String USER = "sa";
     private static final String PASSWORD = "";
 
-    public ProdutoRepository(){
+    public ProdutoRepository() {
+        iniciarConsole();
         criarTabela();
+    }
+
+    private void iniciarConsole() {
+        try {
+            org.h2.tools.Server.createWebServer("-web", "-webAllowOthers", "-webPort", "8082").start();
+        } catch (SQLException e) {
+            System.out.println("Erro ao iniciar console: " + e.getMessage());
+        }
     }
 
     private void criarTabela(){
